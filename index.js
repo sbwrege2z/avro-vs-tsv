@@ -1,7 +1,7 @@
 'use strict';
 
-const generate = require('./generate');
-const consume = require('./consume');
+const generate = require('./src/generate');
+const consume = require('./src/consume');
 
 const users = 10000;
 (async function() {

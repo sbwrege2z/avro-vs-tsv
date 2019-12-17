@@ -2,7 +2,7 @@
   "name": "avro-vs-tsv",
   "version": "1.0.0",
   "description": "Testing the speed of decoding Avro and TSV files",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
