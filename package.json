@@ -17,8 +17,11 @@
   },
   "homepage": "https://github.com/sbwrege2z/avro-vs-tsv#readme",
   "dependencies": {
+    "avsc": "^5.4.18",
     "casual": "^1.6.2",
     "snappy": "^6.2.3",
+    "split2": "^3.1.1",
+    "through2": "^3.0.1",
     "zlib": "^1.0.5"
   }
 }
