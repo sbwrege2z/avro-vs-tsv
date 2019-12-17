@@ -47,6 +47,8 @@ casual.define('user', function() {
 });
 
 async function generateSampleData(users) {
+  console.log('Generating ' + users + ' users');
+
   /*
       Define the streams
   */
