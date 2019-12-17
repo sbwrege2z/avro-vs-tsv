@@ -45,6 +45,8 @@ async function consumeSampleData(path) {
 
     console.log('');
     console.log('Decoding ' + filename);
+    const stats = fs.statSync(filename);
+    console.log('File size: ' + stats['size'].toLocaleString());
     console.time('decode');
     await decoder;
     console.log(count.toLocaleString() + ' users decoded');
@@ -70,6 +72,8 @@ async function consumeSampleData(path) {
 
     console.log('');
     console.log('Decoding ' + filename);
+    const stats = fs.statSync(filename);
+    console.log('File size: ' + stats['size'].toLocaleString());
     console.time('decode');
     await streams.pipeline(input, splitter);
     console.log(count.toLocaleString() + ' users decoded');
@@ -94,6 +98,8 @@ async function consumeSampleData(path) {
 
     console.log('');
     console.log('Decoding ' + filename);
+    const stats = fs.statSync(filename);
+    console.log('File size: ' + stats['size'].toLocaleString());
     console.time('decode');
     await streams.pipeline(input, unzip, splitter);
     console.log(count.toLocaleString() + ' users decoded');
