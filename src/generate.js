@@ -12,7 +12,7 @@ async function generateSampleData(type, count) {
   const model = models[type];
   if (!model) throw new Error('Invalid type: ' + type);
 
-  console.log('Generating ' + count + ' ' + model.name + 's');
+  console.log('Generating ' + count.toLocaleString() + ' ' + model.name + 's');
 
   /*
       Define the streams
@@ -53,7 +53,7 @@ async function generateSampleData(type, count) {
       Push sample data
   */
   for (let i = 1; i <= count; i++) {
-    if (i % 1000 === 0) console.log(i);
+    if (i % 1000 === 0) console.log(i.toLocaleString());
     input.push(model.random);
   }
   input.end();
