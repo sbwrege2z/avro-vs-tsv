@@ -6,6 +6,14 @@ const casual = require('casual');
 const maxInt = Math.pow(2, 31) - 1;
 const maxLong = Number.MAX_SAFE_INTEGER;
 
+const enums = {
+  suits: ['Clubs', 'Diamonds', 'Hearts', 'Spades'],
+  colors: ['Red', 'Green', 'Blue', 'Yellow', 'Orange', 'Purple'],
+  genders: ['Male', 'Female'],
+  levels: ['High', 'Medium', 'Low'],
+  weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+};
+
 casual.define('user', () => {
   return {
     id: casual.integer(1000000, 9999999),
@@ -51,7 +59,12 @@ casual.define('foo', () => {
     bool2: casual.coin_flip,
     bool3: casual.coin_flip,
     bool4: casual.coin_flip,
-    bool5: casual.coin_flip
+    bool5: casual.coin_flip,
+    suit: casual.random_element(enums.suits),
+    color: casual.random_element(enums.colors),
+    gender: casual.random_element(enums.genders),
+    level: casual.random_element(enums.levels),
+    weekday: casual.random_element(enums.weekdays)
   };
 });
 
@@ -126,7 +139,12 @@ const models = {
         { name: 'bool2', type: 'boolean' },
         { name: 'bool3', type: 'boolean' },
         { name: 'bool4', type: 'boolean' },
-        { name: 'bool5', type: 'boolean' }
+        { name: 'bool5', type: 'boolean' },
+        { name: 'suit', type: { type: 'enum', symbols: enums.suits } },
+        { name: 'color', type: { type: 'enum', symbols: enums.colors } },
+        { name: 'gender', type: { type: 'enum', symbols: enums.genders } },
+        { name: 'level', type: { type: 'enum', symbols: enums.levels } },
+        { name: 'weekday', type: { type: 'enum', symbols: enums.weekdays } }
       ]
     },
     new: {
@@ -154,7 +172,12 @@ const models = {
       bool2: false,
       bool3: false,
       bool4: false,
-      bool5: false
+      bool5: false,
+      suit: null,
+      color: null,
+      gender: null,
+      level: null,
+      weekday: null
     },
     get random() {
       return casual.foo;
