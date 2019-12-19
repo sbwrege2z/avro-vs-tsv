@@ -2,29 +2,17 @@
 
 const fs = require('fs');
 const streams = require('./streams');
+const models = require('./models');
 
 module.exports = {
   sampleData: consumeSampleData
 };
 
-const modelUser = {
-  id: 0,
-  username: '',
-  password: '',
-  title: '',
-  first_name: '',
-  last_name: '',
-  gender: '',
-  city: '',
-  state: '',
-  zip: '',
-  country: '',
-  phone: '',
-  email: '',
-  rating: 0
-};
+async function consumeSampleData(type) {
+  const model = models[type];
+  const path = './data/' + type + 's';
+  if (!model) throw new Error('Invalid type: ' + type);
 
-async function consumeSampleData(path) {
   let filename;
 
   filename = path + '.avro';
@@ -35,25 +23,25 @@ async function consumeSampleData(path) {
         .createAvroDecoder({
           path: filename
         })
-        .on('data', (user) => {
+        .on('data', (obj) => {
           count++;
-          // do something with the user
+          // do something with the object
         })
         .on('end', () => resolve())
         .on('error', reject);
     });
 
     console.log('');
-    console.log('Decoding ' + filename);
+    console.log('Decoding ' + model.name + 's from ' + filename);
     const stats = fs.statSync(filename);
     console.log('File size: ' + stats['size'].toLocaleString());
     console.time('decode');
     await decoder;
-    console.log(count.toLocaleString() + ' users decoded');
+    console.log(count.toLocaleString() + ' ' + model.name + 's decoded');
     console.timeEnd('decode');
   }
 
-  const keys = Object.keys(modelUser);
+  const keys = Object.keys(model.new);
 
   filename = path + '.tsv';
   if (fs.existsSync(filename)) {
@@ -63,11 +51,11 @@ async function consumeSampleData(path) {
       .splitter({ mapper: (line) => line.split('\t') })
       .on('data', (values) => {
         if (count >= 0) {
-          const user = Object.assign({}, modelUser);
-          for (let [index, key] of keys) user[key] = values[index];
+          const obj = Object.assign({}, model.new);
+          for (let [index, key] of keys) obj[key] = values[index];
         }
         count++;
-        // do something with user
+        // do something with the object
       });
 
     console.log('');
@@ -76,7 +64,7 @@ async function consumeSampleData(path) {
     console.log('File size: ' + stats['size'].toLocaleString());
     console.time('decode');
     await streams.pipeline(input, splitter);
-    console.log(count.toLocaleString() + ' users decoded');
+    console.log(count.toLocaleString() + ' ' + model.name + 's decoded');
     console.timeEnd('decode');
   }
 
@@ -89,11 +77,11 @@ async function consumeSampleData(path) {
       .splitter({ mapper: (line) => line.split('\t') })
       .on('data', (values) => {
         if (count >= 0) {
-          const user = Object.assign({}, modelUser);
-          for (let [index, key] of keys) user[key] = values[index];
+          const obj = Object.assign({}, model.new);
+          for (let [index, key] of keys) obj[key] = values[index];
         }
         count++;
-        // do something with user
+        // do something with object
       });
 
     console.log('');
@@ -102,7 +90,7 @@ async function consumeSampleData(path) {
     console.log('File size: ' + stats['size'].toLocaleString());
     console.time('decode');
     await streams.pipeline(input, unzip, splitter);
-    console.log(count.toLocaleString() + ' users decoded');
+    console.log(count.toLocaleString() + ' ' + model.name + 's decoded');
     console.timeEnd('decode');
   }
 }

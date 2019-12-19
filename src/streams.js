@@ -48,7 +48,7 @@ function createAvroEncoder(params) {
   let type = null;
   if (infer) type = avro.Type.forValue(infer);
   else if (!explicit) throw new Error('No inferred or explicit schema supplied');
-  else type = avro.Type.forValue(explicit);
+  else if (!(type instanceof avro.Type)) type = avro.Type.forSchema(explicit);
   if (options.codec === 'snappy' && !options.codecs) {
     options.codecs = {
       snappy: snappy.compress

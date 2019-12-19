@@ -1,95 +1,60 @@
 'use strict';
 
 const fs = require('fs');
-const casual = require('casual');
 const streams = require('./streams');
+const models = require('./models');
 
 module.exports = {
   sampleData: generateSampleData
 };
 
-const model = {
-  user: {
-    id: 0,
-    username: '',
-    password: '',
-    title: '',
-    first_name: '',
-    last_name: '',
-    gender: '',
-    city: '',
-    state: '',
-    zip: '',
-    country: '',
-    phone: '',
-    email: '',
-    rating: 0
-  }
-};
+async function generateSampleData(type, count) {
+  const model = models[type];
+  if (!model) throw new Error('Invalid type: ' + type);
 
-casual.define('user', function() {
-  return {
-    id: casual.integer(1000000, 9999999),
-    username: casual.username,
-    password: casual.password,
-    title: casual.name_prefix,
-    first_name: casual.first_name,
-    last_name: casual.last_name,
-    gender: Math.floor(Math.random() * 2 === 1) ? 'M' : 'F',
-    city: casual.city,
-    state: casual.state_abbr,
-    zip: casual.zip(5),
-    country: casual.country_code,
-    phone: casual.phone,
-    email: casual.email,
-    rating: casual.integer(0, 6)
-  };
-});
-
-async function generateSampleData(users) {
-  console.log('Generating ' + users + ' users');
+  console.log('Generating ' + count + ' ' + model.name + 's');
 
   /*
       Define the streams
   */
   const input = streams
     .passThrough({ objectMode: true })
-    .on('data', (user) => passThroughUsers.push(user))
-    .on('end', () => passThroughUsers.end());
-  const passThroughUsers = streams.passThrough({ objectMode: true });
-  const passThroughTsv = streams.passThrough({ objectMode: false });
+    .on('data', (obj) => passThroughObjects.push(obj))
+    .on('end', () => passThroughObjects.end());
+  const passThroughObjects = streams.passThrough({ objectMode: true });
+  const passThroughStrings = streams.passThrough({ objectMode: false });
   const tsv = streams
     .tsv()
-    .on('data', (str) => passThroughTsv.push(str))
-    .on('end', () => passThroughTsv.end());
+    .on('data', (str) => passThroughStrings.push(str))
+    .on('end', () => passThroughStrings.end());
   const gzip = streams.gzip();
   const encoder = streams.createAvroEncoder({
-    schema: { infer: casual.user },
+    schema: { explicit: model.avro },
     //options: { codec: 'snappy' }
     //options: { codec: 'null' }
     options: { codec: 'deflate' }
   });
   const subdir = './data';
-  //const subdir = './data/_' + users.toLocaleString();
+  //const subdir = './data/_' + count.toLocaleString();
   if (!fs.existsSync(subdir)) fs.mkdirSync(subdir);
-  const outputTsv = fs.createWriteStream(subdir + '/sample.tsv');
-  const outputZip = fs.createWriteStream(subdir + '/sample.tsv.gz');
-  const outputAvro = fs.createWriteStream(subdir + '/sample.avro');
+  const outputTsv = fs.createWriteStream(subdir + '/' + type + 's.tsv');
+  const outputZip = fs.createWriteStream(subdir + '/' + type + 's.tsv.gz');
+  const outputAvro = fs.createWriteStream(subdir + '/' + type + 's.avro');
 
   /*
       Define the pipelines
   */
   const pipelines = [];
   pipelines.push(streams.pipeline(input, tsv, outputTsv));
-  pipelines.push(streams.pipeline(passThroughTsv, gzip, outputZip));
-  pipelines.push(streams.pipeline(passThroughUsers, encoder, outputAvro));
+  pipelines.push(streams.pipeline(passThroughStrings, gzip, outputZip));
+  pipelines.push(streams.pipeline(passThroughObjects, encoder, outputAvro));
 
   /*
       Push sample data
   */
-  for (let i = 1; i <= users; i++) {
+  for (let i = 1; i <= count; i++) {
     if (i % 1000 === 0) console.log(i);
-    input.push(casual.user);
+    input.push(model.random);
   }
   input.end();
 
