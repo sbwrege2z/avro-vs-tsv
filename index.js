@@ -3,7 +3,7 @@
 const generate = require('./src/generate');
 const consume = require('./src/consume');
 
-const count = 100000;
+const count = 10000;
 const type = 'foo'; // type containing all numbers and booleans
 //const type = 'user'; // type containing mostly strings and a few numbers
 
